@@ -1,0 +1,36 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="TrafficGrapher.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="IpAddress" Type="System.String" Scope="User">
+      <Value Profile="(Default)">192.168.1.1</Value>
+    </Setting>
+    <Setting Name="SnmpCommunity" Type="System.String" Scope="User">
+      <Value Profile="(Default)">public</Value>
+    </Setting>
+    <Setting Name="Index" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">1</Value>
+    </Setting>
+    <Setting Name="InColor" Type="System.String" Scope="User">
+      <Value Profile="(Default)">LimeGreen</Value>
+    </Setting>
+    <Setting Name="OutColor" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Darkblue</Value>
+    </Setting>
+    <Setting Name="CounterType" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Counter64</Value>
+    </Setting>
+    <Setting Name="CounterUnit" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Bits</Value>
+    </Setting>
+    <Setting Name="PollInterval" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">1000</Value>
+    </Setting>
+    <Setting Name="DefaultTimeSpan" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">30</Value>
+    </Setting>
+    <Setting Name="CounterPrefix" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Mega</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

@@ -1,0 +1,188 @@
+﻿<UserControl x:Class="TrafficGrapher.View.GraphSettingsModal"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:validationRules="clr-namespace:TrafficGrapher.ValidationRules"
+             xmlns:converters="clr-namespace:TrafficGrapher.Converters"
+             xmlns:data="clr-namespace:TrafficGrapher.Model"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid Width="640">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <GroupBox Style="{DynamicResource MaterialDesignCardGroupBox}"
+                  Margin="4"
+                  HorizontalAlignment="Stretch"
+                  Grid.Row="0">
+            <GroupBox.HeaderTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <materialDesign:PackIcon Grid.Column="0" 
+                                                 Kind="InfoOutline"
+                                                 Height="32"
+                                                 Width="32"
+                                                 VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="1" Margin="8,0,0,0"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource MaterialDesignSubheadingTextBlock}"
+                                   Text="SETTINGS" />
+                        <StackPanel Grid.Column="2" Orientation="Horizontal">
+                            <Button Command="{Binding DataContext.SaveSettingsCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                    Style="{StaticResource MaterialDesignRaisedAccentButton}"
+                                    ToolTip="SAVE SETTINGS"
+                                    ToolBar.OverflowMode="AsNeeded"
+                                    Margin="4">
+                                <materialDesign:PackIcon
+                                    Kind="ContentSave" />
+                            </Button>
+
+                            <Button Command="{Binding DataContext.LoadSettingsCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                    Style="{StaticResource MaterialDesignRaisedAccentButton}"
+                                    ToolTip="LOAD SETTINGS"
+                                    ToolBar.OverflowMode="AsNeeded"
+                                    Margin="4">
+                                <materialDesign:PackIcon
+                                    Kind="Upload" />
+                            </Button>
+
+                            <Button Command="{Binding DataContext.ExportSettingsCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                    Style="{StaticResource MaterialDesignRaisedAccentButton}"
+                                    ToolTip="EXPORT SETTINGS"
+                                    ToolBar.OverflowMode="AsNeeded"
+                                    Margin="4">
+                                <materialDesign:PackIcon
+                                    Kind="Export" />
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </DataTemplate>
+            </GroupBox.HeaderTemplate>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <TextBox x:Name="Host" 
+                         Grid.Row="0" Grid.Column="0"
+                         materialDesign:HintAssist.Hint="HOST"
+                         ToolTip="Host IP Address">
+                    <TextBox.Text>
+                        <Binding Path="GraphSettings.IpAddress" UpdateSourceTrigger="PropertyChanged">
+                            <Binding.ValidationRules>
+                                <validationRules:HostValidationRule/>
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                </TextBox>
+                
+                <TextBox x:Name="SnmpCommunity" 
+                         Text="{Binding GraphSettings.SnmpCommunity}" 
+                         Grid.Row="0" Grid.Column="1"
+                         materialDesign:HintAssist.Hint="SNMP COMMUNITY"
+                         ToolTip="SNMP Community"/>
+
+                <Grid Grid.Row="1" Grid.Column="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="PortIndex" 
+                             Text="{Binding GraphSettings.InterfaceIndex}" 
+                             materialDesign:HintAssist.Hint="PORT INDEX"
+                             ToolTip="Integer value representing the OID Port Index for the interface to monitor"/>
+                    <Button Grid.Column="1" DockPanel.Dock="Right" Command="{Binding FindIndexCommand}"
+                            Style="{StaticResource MaterialDesignRaisedAccentButton}"
+                            ToolTip="GET INDEX"
+                            ToolBar.OverflowMode="AsNeeded"
+                            Margin="4"
+                            Width="45">
+                        <materialDesign:PackIcon
+                            Kind="Search" />
+                    </Button>
+                </Grid>
+                
+                <ComboBox Grid.Row="1" Grid.Column="1" x:Name="CounterType"
+                          SelectedItem="{Binding GraphSettings.CounterType}"
+                          ItemsSource="{Binding Source={converters:EnumBindingSource {x:Type data:CounterType}}}"
+                          materialDesign:HintAssist.Hint="COUNTER TYPE"
+                          ToolTip="Standard (32bit) or High Counter (64Bit)"/>
+                
+                <TextBox x:Name="PollInterval" 
+                         Text="{Binding GraphSettings.PollInterval}" 
+                         Grid.Row="2" Grid.Column="0"
+                         materialDesign:HintAssist.Hint="POLL INTERVAL (ms)"
+                         ToolTip="Poll interval in milliseconds"/>
+
+                <TextBox x:Name="DefaultTimeSpan" 
+                         Text="{Binding GraphSettings.DefaultTimeSpan}" 
+                         Grid.Row="2" Grid.Column="1" 
+                         materialDesign:HintAssist.Hint="TIMESPAN (s)"
+                         ToolTip="Default time span for displaying data points (scroll time span)"/>
+                <ComboBox Grid.Row="3" Grid.Column="0" x:Name="CounterUnit"
+                          SelectedItem="{Binding GraphSettings.CounterUnit}"
+                          ItemsSource="{Binding Source={converters:EnumBindingSource {x:Type data:CounterUnit}}}"
+                          materialDesign:HintAssist.Hint="GRAPH UNITS"
+                          ToolTip="Display data in Bits or Bytes"/>
+                <ComboBox Grid.Row="3" Grid.Column="1" x:Name="CounterPrefix"
+                          SelectedItem="{Binding GraphSettings.CounterPrefix}"
+                          ItemsSource="{Binding Source={converters:EnumBindingSource {x:Type data:CounterPrefix}}}"
+                          materialDesign:HintAssist.Hint="UNIT PREFIX"
+                          ToolTip="Display data in Kilo, Mega or Giga"/>
+                <ComboBox  x:Name="InColor" 
+                           ItemsSource="{Binding GraphSettings.AllColors}"
+                           SelectedItem="{Binding GraphSettings.InColorPropertyInfo}" 
+                           Grid.Row="4" Grid.Column="0"
+                           materialDesign:HintAssist.Hint="IN COLOR"
+                           ToolTip="Color for traffic entering interface">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Rectangle Fill="{Binding Name}" Width="16" Height="16" Margin="0,2,5,2" />
+                                <TextBlock Text="{Binding Name}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <ComboBox  x:Name="OutColor" 
+                               SelectedItem="{Binding GraphSettings.OutColorPropertyInfo}" 
+                               Grid.Row="4" Grid.Column="1"
+                               materialDesign:HintAssist.Hint="OUT COLOR"
+                               ToolTip="Color for traffic exiting interface"
+                               ItemsSource="{Binding GraphSettings.AllColors}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Rectangle Fill="{Binding Name}" Width="16" Height="16" Margin="0,2,5,2" />
+                                <TextBlock Text="{Binding Name}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </Grid>
+        </GroupBox>
+        <Button Style="{StaticResource MaterialDesignFlatButton}"
+                Grid.Row="1"
+                Margin="0 8 8 0"
+                Command="materialDesign:DialogHost.CloseDialogCommand"
+                Content="CLOSE"/>
+
+    </Grid>
+</UserControl>
