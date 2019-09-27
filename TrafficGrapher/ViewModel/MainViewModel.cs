@@ -114,6 +114,7 @@ namespace TrafficGrapher.ViewModel
 
         private void SaveToPng(FrameworkElement visual)
         {
+            if (!CheckGraphStarted()) return;
             var encoder = new PngBitmapEncoder();
             var fd = new SaveFileDialog()
             {
@@ -203,6 +204,7 @@ namespace TrafficGrapher.ViewModel
 
         private async void SaveToCsv()
         {
+            if(!CheckGraphStarted()) return;
             var fd = new SaveFileDialog()
             {
                 Filter = "CSV files (*.csv)|*.csv",
@@ -212,7 +214,7 @@ namespace TrafficGrapher.ViewModel
 
             await Task.Factory.StartNew((() =>
             {
-                Graph.ToCsv(fd.FileName);
+                Graph?.ToCsv(fd.FileName);
             }));
             _snackbar.Enqueue($"Saved {fd.FileName} successfully!", "Ok", () => { });
         }
@@ -235,6 +237,17 @@ namespace TrafficGrapher.ViewModel
         private void CloseDialog(CloseDialogMessage message)
         {
             if (message.Close) DialogOpen = false;
+        }
+
+        private bool CheckGraphStarted()
+        {
+            if (Graph == null)
+            {
+                _snackbar.Enqueue("Please start graph before exporting results", "Ok", () => { });
+                return false;
+            }
+
+            return true;
         }
     }
 }
