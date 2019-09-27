@@ -7,6 +7,7 @@
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         xmlns:geared="clr-namespace:LiveCharts.Geared;assembly=LiveCharts.Geared"
         xmlns:ui="clr-namespace:TrafficGrapher.View"
+        xmlns:viewModel="clr-namespace:TrafficGrapher.ViewModel"
         mc:Ignorable="d"
         Title="Traffic Grapher" 
         Height="540" Width="960"
@@ -23,7 +24,7 @@
         <materialDesign:DialogHost.DialogContentTemplate>
             <DataTemplate>
                 <DataTemplate.Resources>
-                    <DataTemplate DataType="{x:Type ui:ErrorModalViewModel}">
+                    <DataTemplate DataType="{x:Type viewModel:ErrorModalViewModel}">
                         <ui:ErrorModal />
                     </DataTemplate>
                 </DataTemplate.Resources>

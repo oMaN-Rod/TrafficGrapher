@@ -117,7 +117,7 @@
     <Compile Include="View\ErrorModal.xaml.cs">
       <DependentUpon>ErrorModal.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\ErrorModalViewModel.cs" />
+    <Compile Include="ViewModel\ErrorModalViewModel.cs" />
     <Compile Include="View\GraphSettingsModal.xaml.cs">
       <DependentUpon>GraphSettingsModal.xaml</DependentUpon>
     </Compile>

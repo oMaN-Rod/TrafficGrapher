@@ -1,6 +1,4 @@
-﻿using TrafficGrapher.Model;
-
-namespace TrafficGrapher.View
+﻿namespace TrafficGrapher.ViewModel
 {
     public class ErrorModalViewModel
     {
