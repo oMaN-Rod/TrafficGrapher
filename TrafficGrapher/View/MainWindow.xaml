@@ -21,152 +21,153 @@
         DataContext="{Binding MainViewModel, Source={StaticResource Locator}, Mode=OneTime}"
         Loaded="MainWindow_OnLoaded"
         Closed="MainWindow_OnClosed">
-    <materialDesign:DialogHost Identifier="GraphRootDialog" IsOpen="{Binding DialogOpen}" DialogTheme="{Binding WindowTheme}">
-        <materialDesign:DialogHost.DialogContentTemplate>
-            <DataTemplate>
-                <DataTemplate.Resources>
-                    <DataTemplate DataType="{x:Type viewModel:ErrorModalViewModel}">
-                        <ui:ErrorModal />
-                    </DataTemplate>
-                </DataTemplate.Resources>
-                <ContentControl Content="{Binding}" />
-            </DataTemplate>
-        </materialDesign:DialogHost.DialogContentTemplate>
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <Grid Grid.Row="1">
+    <Grid>
+        <materialDesign:DialogHost Identifier="RootDialog" IsOpen="{Binding DialogOpen}" DialogTheme="{Binding WindowTheme}">
+            <materialDesign:DialogHost.DialogContentTemplate>
+                <DataTemplate>
+                    <DataTemplate.Resources>
+                        <DataTemplate DataType="{x:Type viewModel:ErrorModalViewModel}">
+                            <ui:ErrorModal />
+                        </DataTemplate>
+                    </DataTemplate.Resources>
+                    <ContentControl Content="{Binding}" />
+                </DataTemplate>
+            </materialDesign:DialogHost.DialogContentTemplate>
+            <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
-                    <RowDefinition Height="100" />
-                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+                <Grid Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="100" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
 
-                <ToolBarTray Grid.Row="0" Grid.ColumnSpan="2">
-                    <ToolBar Style="{DynamicResource MaterialDesignToolBar}"
+                    <ToolBarTray Grid.Row="0" Grid.ColumnSpan="2">
+                        <ToolBar Style="{DynamicResource MaterialDesignToolBar}"
                              ClipToBounds="False">
 
-                        <Button ToolTip="START"
+                            <Button ToolTip="START"
                                 Command="{Binding StartCommand}">
-                            <materialDesign:PackIcon
+                                <materialDesign:PackIcon
                                 Kind="Play" />
-                        </Button>
-                        <Button Command="{Binding StopCommand}"
+                            </Button>
+                            <Button Command="{Binding StopCommand}"
                                 ToolTip="STOP"
                                 ToolBar.OverflowMode="AsNeeded">
-                            <materialDesign:PackIcon
+                                <materialDesign:PackIcon
                                 Kind="Stop" />
-                        </Button>
-                        <Separator />
-                        <Button Command="{Binding ClearCommand}"
+                            </Button>
+                            <Separator />
+                            <Button Command="{Binding ClearCommand}"
                                 ToolTip="CLEAR"
                                 ToolBar.OverflowMode="AsNeeded">
-                            <materialDesign:PackIcon
+                                <materialDesign:PackIcon
                                 Kind="Broom" />
-                        </Button>
-                        <Button Command="{Binding SavePngCommand}"
+                            </Button>
+                            <Button Command="{Binding SavePngCommand}"
                                 ToolTip="SAVE IMAGE"
                                 ToolBar.OverflowMode="AsNeeded"
                                 CommandParameter="{Binding ElementName=MainGraph}">
-                            <materialDesign:PackIcon
+                                <materialDesign:PackIcon
                                 Kind="Image" />
-                        </Button>
-                        <Button Command="{Binding SaveToCsvCommand}"
+                            </Button>
+                            <Button Command="{Binding SaveToCsvCommand}"
                                 ToolTip="SAVE CSV"
                                 ToolBar.OverflowMode="AsNeeded">
-                            <materialDesign:PackIcon
+                                <materialDesign:PackIcon
                                 Kind="File" />
-                        </Button>
-                        <Separator />
+                            </Button>
+                            <Separator />
 
-                        <Button Command="{Binding OpenSettingsCommand}"
+                            <Button Command="{Binding OpenSettingsCommand}"
                                 ToolTip="SETTINGS"
                                 ToolBar.OverflowMode="AsNeeded">
-                            <materialDesign:PackIcon
+                                <materialDesign:PackIcon
                                 Kind="Settings" />
-                        </Button>
-                    </ToolBar>
-                </ToolBarTray>
+                            </Button>
+                        </ToolBar>
+                    </ToolBarTray>
 
-                <lvc:CartesianChart Grid.Row="1" Grid.Column="0"
+                    <lvc:CartesianChart Grid.Row="1" Grid.Column="0"
                                     Zoom="X"
                                     Hoverable="False"
                                     x:Name="MainGraph">
-                    <lvc:CartesianChart.Resources>
-                        <Style TargetType="lvc:Separator">
-                            <Setter Property="StrokeThickness" Value=".5" />
-                            <Setter Property="Stroke" Value="LightSlateGray" />
-                            <Style.Triggers>
-                                <Trigger Property="AxisOrientation" Value="X">
-                                    <Setter Property="IsEnabled" Value="False" />
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                        <Style x:Key="In" TargetType="lvc:LineSeries">
-                            <Setter Property="StrokeThickness" Value="1" />
-                            <Setter Property="Stroke" Value="{Binding GraphSettings.InBrush}" />
-                            <Setter Property="Fill">
-                                <Setter.Value>
-                                    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                                        <GradientStop Color="{Binding GraphSettings.InColor}" Offset="0" />
-                                        <GradientStop Color="Transparent" Offset="1.5" />
-                                    </LinearGradientBrush>
-                                </Setter.Value>
-                            </Setter>
-                            <Setter Property="LineSmoothness" Value=".2" />
-                            <Setter Property="PointGeometrySize" Value="2" />
-                        </Style>
-                        <Style x:Key="Out" TargetType="lvc:LineSeries">
-                            <Setter Property="StrokeThickness" Value="1" />
-                            <Setter Property="Stroke" Value="{Binding GraphSettings.OutBrush}" />
-                            <Setter Property="Fill">
-                                <Setter.Value>
-                                    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                                        <GradientStop Color="{Binding GraphSettings.OutColor}" Offset="0" />
-                                        <GradientStop Color="Transparent" Offset="1.5" />
-                                    </LinearGradientBrush>
-                                </Setter.Value>
-                            </Setter>
-                            <Setter Property="LineSmoothness" Value=".2" />
-                            <Setter Property="PointGeometrySize" Value="2" />
-                        </Style>
-                    </lvc:CartesianChart.Resources>
-                    <lvc:CartesianChart.Series>
-                        <geared:GLineSeries Values="{Binding Graph.In}"
+                        <lvc:CartesianChart.Resources>
+                            <Style TargetType="lvc:Separator">
+                                <Setter Property="StrokeThickness" Value=".5" />
+                                <Setter Property="Stroke" Value="LightSlateGray" />
+                                <Style.Triggers>
+                                    <Trigger Property="AxisOrientation" Value="X">
+                                        <Setter Property="IsEnabled" Value="False" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                            <Style x:Key="In" TargetType="lvc:LineSeries">
+                                <Setter Property="StrokeThickness" Value="1" />
+                                <Setter Property="Stroke" Value="{Binding GraphSettings.InBrush}" />
+                                <Setter Property="Fill">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                            <GradientStop Color="{Binding GraphSettings.InColor}" Offset="0" />
+                                            <GradientStop Color="Transparent" Offset="1.5" />
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter Property="LineSmoothness" Value=".2" />
+                                <Setter Property="PointGeometrySize" Value="2" />
+                            </Style>
+                            <Style x:Key="Out" TargetType="lvc:LineSeries">
+                                <Setter Property="StrokeThickness" Value="1" />
+                                <Setter Property="Stroke" Value="{Binding GraphSettings.OutBrush}" />
+                                <Setter Property="Fill">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                            <GradientStop Color="{Binding GraphSettings.OutColor}" Offset="0" />
+                                            <GradientStop Color="Transparent" Offset="1.5" />
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter Property="LineSmoothness" Value=".2" />
+                                <Setter Property="PointGeometrySize" Value="2" />
+                            </Style>
+                        </lvc:CartesianChart.Resources>
+                        <lvc:CartesianChart.Series>
+                            <geared:GLineSeries Values="{Binding Graph.In}"
                                             Style="{StaticResource In}"
                                             AreaLimit="0"
                                             PointForeground="{Binding GraphSettings.InBrush}"
                                             PointGeometrySize="5"
                                             Title="In" />
-                        <geared:GLineSeries Values="{Binding Graph.Out}"
+                            <geared:GLineSeries Values="{Binding Graph.Out}"
                                             Style="{StaticResource Out}"
                                             AreaLimit="0"
                                             PointForeground="{Binding GraphSettings.OutBrush}"
                                             PointGeometrySize="5"
                                             Title="Out" />
-                    </lvc:CartesianChart.Series>
-                    <lvc:CartesianChart.AxisX>
-                        <lvc:Axis Title="Time" LabelFormatter="{Binding GraphSettings.Formatter}"
+                        </lvc:CartesianChart.Series>
+                        <lvc:CartesianChart.AxisX>
+                            <lvc:Axis Title="Time" LabelFormatter="{Binding GraphSettings.Formatter}"
                                   RangeChangedCommand="{Binding RangeChangedCommand}"
                                   MinValue="{Binding Graph.From, Mode=TwoWay}"
                                   MaxValue="{Binding Graph.To, Mode=TwoWay}"
                                   Separator="{x:Static lvc:DefaultAxes.CleanSeparator}" />
-                    </lvc:CartesianChart.AxisX>
-                    <lvc:CartesianChart.AxisY>
-                        <lvc:Axis Title="{Binding Graph.Units, StringFormat=M{0}}" MinValue="0" />
-                    </lvc:CartesianChart.AxisY>
-                    <lvc:CartesianChart.DataTooltip>
-                        <ui:ToolTip/>
-                    </lvc:CartesianChart.DataTooltip>
-                </lvc:CartesianChart>
-                <lvc:CartesianChart Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0"
+                        </lvc:CartesianChart.AxisX>
+                        <lvc:CartesianChart.AxisY>
+                            <lvc:Axis Title="{Binding Graph.Units, StringFormat=M{0}}" MinValue="0" />
+                        </lvc:CartesianChart.AxisY>
+                        <lvc:CartesianChart.DataTooltip>
+                            <ui:ToolTip/>
+                        </lvc:CartesianChart.DataTooltip>
+                    </lvc:CartesianChart>
+                    <lvc:CartesianChart Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0"
                                     DisableAnimations="True"
                                     ScrollMode="X"
                                     ScrollHorizontalFrom="{Binding Graph.From, Mode=TwoWay}"
@@ -175,143 +176,149 @@
                                     DataTooltip="{x:Null}"
                                     Hoverable="False"
                                     Margin="20 10">
-                    <lvc:CartesianChart.Resources>
-                        <Style TargetType="lvc:Separator">
-                            <Setter Property="IsEnabled" Value="False" />
-                        </Style>
-                        <Style TargetType="lvc:LineSeries" x:Key="In">
-                            <Setter Property="StrokeThickness" Value="1" />
-                            <Setter Property="Stroke" Value="{Binding GraphSettings.InBrush}" />
-                            <Setter Property="Fill">
-                                <Setter.Value>
-                                    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                                        <GradientStop Color="{Binding GraphSettings.InColor}" Offset="0" />
-                                        <GradientStop Color="Transparent" Offset="1.5" />
-                                    </LinearGradientBrush>
-                                </Setter.Value>
-                            </Setter>
-                            <Setter Property="LineSmoothness" Value=".1" />
-                            <Setter Property="PointGeometrySize" Value="2" />
-                        </Style>
-                        <Style TargetType="lvc:LineSeries" x:Key="Out">
-                            <Setter Property="StrokeThickness" Value="1" />
-                            <Setter Property="Stroke" Value="{Binding GraphSettings.OutBrush}" />
-                            <Setter Property="Fill">
-                                <Setter.Value>
-                                    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                                        <GradientStop Color="{Binding GraphSettings.OutColor}" Offset="0" />
-                                        <GradientStop Color="Transparent" Offset="1.5" />
-                                    </LinearGradientBrush>
-                                </Setter.Value>
-                            </Setter>
-                            <Setter Property="LineSmoothness" Value=".1" />
-                            <Setter Property="PointGeometrySize" Value="2" />
-                        </Style>
-                    </lvc:CartesianChart.Resources>
-                    <lvc:CartesianChart.Series>
-                        <geared:GLineSeries Values="{Binding Graph.In}"
+                        <lvc:CartesianChart.Resources>
+                            <Style TargetType="lvc:Separator">
+                                <Setter Property="IsEnabled" Value="False" />
+                            </Style>
+                            <Style TargetType="lvc:LineSeries" x:Key="In">
+                                <Setter Property="StrokeThickness" Value="1" />
+                                <Setter Property="Stroke" Value="{Binding GraphSettings.InBrush}" />
+                                <Setter Property="Fill">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                            <GradientStop Color="{Binding GraphSettings.InColor}" Offset="0" />
+                                            <GradientStop Color="Transparent" Offset="1.5" />
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter Property="LineSmoothness" Value=".1" />
+                                <Setter Property="PointGeometrySize" Value="2" />
+                            </Style>
+                            <Style TargetType="lvc:LineSeries" x:Key="Out">
+                                <Setter Property="StrokeThickness" Value="1" />
+                                <Setter Property="Stroke" Value="{Binding GraphSettings.OutBrush}" />
+                                <Setter Property="Fill">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                            <GradientStop Color="{Binding GraphSettings.OutColor}" Offset="0" />
+                                            <GradientStop Color="Transparent" Offset="1.5" />
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter Property="LineSmoothness" Value=".1" />
+                                <Setter Property="PointGeometrySize" Value="2" />
+                            </Style>
+                        </lvc:CartesianChart.Resources>
+                        <lvc:CartesianChart.Series>
+                            <geared:GLineSeries Values="{Binding Graph.In}"
                                             Style="{StaticResource In}" />
-                        <geared:GLineSeries Values="{Binding Graph.Out}"
+                            <geared:GLineSeries Values="{Binding Graph.Out}"
                                             Style="{StaticResource Out}" />
-                    </lvc:CartesianChart.Series>
-                    <lvc:CartesianChart.AxisX>
-                        <lvc:Axis IsMerged="True"
+                        </lvc:CartesianChart.Series>
+                        <lvc:CartesianChart.AxisX>
+                            <lvc:Axis IsMerged="True"
                                   LabelFormatter="{Binding GraphSettings.Formatter, Mode=OneTime}"
                                   Foreground="#98000000"
                                   FontSize="22"
                                   FontWeight="UltraBold" />
-                    </lvc:CartesianChart.AxisX>
-                    <lvc:CartesianChart.AxisY>
-                        <lvc:Axis ShowLabels="False" MinValue="0" />
-                    </lvc:CartesianChart.AxisY>
-                </lvc:CartesianChart>
-                <StackPanel Grid.Row="1" Grid.Column="1"
+                        </lvc:CartesianChart.AxisX>
+                        <lvc:CartesianChart.AxisY>
+                            <lvc:Axis ShowLabels="False" MinValue="0" />
+                        </lvc:CartesianChart.AxisY>
+                    </lvc:CartesianChart>
+                    <StackPanel Grid.Row="1" Grid.Column="1"
                             Orientation="Vertical">
-                    <StackPanel Orientation="Horizontal" Margin="4">
-                        <StackPanel.ToolTip>
-                            <StackPanel Orientation="Vertical">
-                                <TextBlock Text="{Binding Graph.InLegend, StringFormat=Cur: {0}}"
+                        <StackPanel Orientation="Horizontal" Margin="4">
+                            <StackPanel.ToolTip>
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Text="{Binding Graph.InLegend, StringFormat=Cur: {0}}"
                                            ToolTip="Current In" />
-                                <TextBlock Text="{Binding Graph.InMinLegend, StringFormat=Min: {0}}"
+                                    <TextBlock Text="{Binding Graph.InMinLegend, StringFormat=Min: {0}}"
                                            ToolTip="Min In" />
-                                <TextBlock Text="{Binding Graph.InMaxLegend, StringFormat=Max: {0}}"
+                                    <TextBlock Text="{Binding Graph.InMaxLegend, StringFormat=Max: {0}}"
                                            ToolTip="Max In" />
-                                <TextBlock Text="{Binding Graph.InAvgLegend, StringFormat=Avg: {0}}"
+                                    <TextBlock Text="{Binding Graph.InAvgLegend, StringFormat=Avg: {0}}"
                                            ToolTip="Avg In" />
-                            </StackPanel>
-                        </StackPanel.ToolTip>
-                        <StackPanel Orientation="Horizontal">
-                            <Rectangle Width="24" Height="24" Stroke="{Binding GraphSettings.InBrush}"
+                                </StackPanel>
+                            </StackPanel.ToolTip>
+                            <StackPanel Orientation="Horizontal">
+                                <Rectangle Width="24" Height="24" Stroke="{Binding GraphSettings.InBrush}"
                                        VerticalAlignment="Center">
-                                <Rectangle.Fill>
-                                    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                                        <GradientStop Color="{Binding GraphSettings.InColor}" Offset="0" />
-                                        <GradientStop Color="Transparent" Offset="1.5" />
-                                    </LinearGradientBrush>
-                                </Rectangle.Fill>
-                            </Rectangle>
-                            <TextBlock Text="In:" FontWeight="Bold"
+                                    <Rectangle.Fill>
+                                        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                            <GradientStop Color="{Binding GraphSettings.InColor}" Offset="0" />
+                                            <GradientStop Color="Transparent" Offset="1.5" />
+                                        </LinearGradientBrush>
+                                    </Rectangle.Fill>
+                                </Rectangle>
+                                <TextBlock Text="In:" FontWeight="Bold"
                                        VerticalAlignment="Center" />
-                            <TextBlock Text="{Binding Graph.InLegend}"
+                                <TextBlock Text="{Binding Graph.InLegend}"
                                        VerticalAlignment="Center" />
+                            </StackPanel>
                         </StackPanel>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="4">
-                        <StackPanel.ToolTip>
-                            <StackPanel Orientation="Vertical">
-                                <TextBlock Text="{Binding Graph.OutLegend, StringFormat=Cur: {0}}"
+                        <StackPanel Orientation="Horizontal" Margin="4">
+                            <StackPanel.ToolTip>
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Text="{Binding Graph.OutLegend, StringFormat=Cur: {0}}"
                                            ToolTip="Current Out" />
-                                <TextBlock Text="{Binding Graph.OutMinLegend, StringFormat=Min: {0}}"
+                                    <TextBlock Text="{Binding Graph.OutMinLegend, StringFormat=Min: {0}}"
                                            ToolTip="Min Out" />
-                                <TextBlock Text="{Binding Graph.OutMaxLegend, StringFormat=Max: {0}}"
+                                    <TextBlock Text="{Binding Graph.OutMaxLegend, StringFormat=Max: {0}}"
                                            ToolTip="Max Out" />
-                                <TextBlock Text="{Binding Graph.OutAvgLegend, StringFormat=Avg: {0}}"
+                                    <TextBlock Text="{Binding Graph.OutAvgLegend, StringFormat=Avg: {0}}"
                                            ToolTip="Avg Out" />
-                            </StackPanel>
-                        </StackPanel.ToolTip>
-                        <StackPanel Orientation="Horizontal">
-                            <Rectangle Width="24" Height="24" Stroke="{Binding GraphSettings.OutBrush}"
+                                </StackPanel>
+                            </StackPanel.ToolTip>
+                            <StackPanel Orientation="Horizontal">
+                                <Rectangle Width="24" Height="24" Stroke="{Binding GraphSettings.OutBrush}"
                                        VerticalAlignment="Center">
-                                <Rectangle.Fill>
-                                    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                                        <GradientStop Color="{Binding GraphSettings.OutColor}" Offset="0" />
-                                        <GradientStop Color="Transparent" Offset="1.5" />
-                                    </LinearGradientBrush>
-                                </Rectangle.Fill>
-                            </Rectangle>
-                            <TextBlock Text="Out:" FontWeight="Bold"
+                                    <Rectangle.Fill>
+                                        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                            <GradientStop Color="{Binding GraphSettings.OutColor}" Offset="0" />
+                                            <GradientStop Color="Transparent" Offset="1.5" />
+                                        </LinearGradientBrush>
+                                    </Rectangle.Fill>
+                                </Rectangle>
+                                <TextBlock Text="Out:" FontWeight="Bold"
                                        VerticalAlignment="Center" />
-                            <TextBlock Text="{Binding Graph.OutLegend}"
+                                <TextBlock Text="{Binding Graph.OutLegend}"
                                        VerticalAlignment="Center" />
+                            </StackPanel>
                         </StackPanel>
+
+
                     </StackPanel>
-
-
-                </StackPanel>
-                <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Grid.Column="0"
+                    <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Grid.Column="0"
                             Orientation="Horizontal">
-                    <TextBlock VerticalAlignment="Center"
+                        <TextBlock VerticalAlignment="Center"
                                Margin="8"
                                Text="{Binding GraphSettings.IpAddress, StringFormat=Host: {0}}"
                                Style="{StaticResource Units}" />
-                    <TextBlock VerticalAlignment="Center"
+                        <TextBlock VerticalAlignment="Center"
                                Margin="8"
                                Text="{Binding GraphSettings.InterfaceName, StringFormat=Interface: {0}}"
                                Style="{StaticResource Units}" />
-                    <TextBlock VerticalAlignment="Center"
+                        <TextBlock VerticalAlignment="Center"
                                Margin="8"
                                Text="{Binding Graph.Count, StringFormat=Polls: {0}}"
                                Style="{StaticResource Units}" />
-                    <TextBlock VerticalAlignment="Center"
+                        <TextBlock VerticalAlignment="Center"
                                Margin="8"
                                Text="{Binding GraphSettings.PollInterval, StringFormat=Interval: {0}ms}"
                                Style="{StaticResource Units}" />
-                    <TextBlock VerticalAlignment="Center"
+                        <TextBlock VerticalAlignment="Center"
                                Margin="8"
                                Text="{Binding Graph.PollState, StringFormat=State: {0}}"
                                Style="{StaticResource Units}" />
-                </StackPanel>
+                    </StackPanel>
+                </Grid>
             </Grid>
-        </Grid>
-    </materialDesign:DialogHost>
+        </materialDesign:DialogHost>
+        <materialDesign:Snackbar MessageQueue="{Binding Snackbar}"
+                                 HorizontalAlignment="Stretch"
+                                 x:Name="MainSnackbar"
+                                 Grid.Row="4" />
+    </Grid>
+    
 </Window>

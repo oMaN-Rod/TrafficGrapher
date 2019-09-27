@@ -7,24 +7,26 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using GalaSoft.MvvmLight.Views;
 using LiveCharts.Events;
 using MaterialDesignThemes.Wpf;
 using Microsoft.Win32;
 using TrafficGrapher.Model;
+using TrafficGrapher.Model.Messages;
 using TrafficGrapher.View;
 
 namespace TrafficGrapher.ViewModel
 {
     public class MainViewModel : ViewModelBase
     {
-        private const string DialogIdentifier = "GraphRootDialog";
-
         private GraphSettings _graphSettings;
         private Graph _graph;
         private bool _dialogOpen;
         private BaseTheme _windowTheme;
         private bool _darkModeEnabled;
-        
+        private SnackbarMessageQueue _snackbar;
+        private DialogService _dialogService;
+
         public GraphSettings GraphSettings
         {
             get => _graphSettings ?? (_graphSettings = new GraphSettings());
@@ -52,11 +54,8 @@ namespace TrafficGrapher.ViewModel
             get => _darkModeEnabled;
             set { Set(() => DarkModeEnabled, ref _darkModeEnabled, value); }
         }
-        public MainViewModel()
-        {
-            GraphSettings.SettingsChanged += HostSettingsChanged;
-            DarkModeEnabled = Properties.Settings.Default.DarkModeEnabled;
-        }
+
+        public SnackbarMessageQueue Snackbar => _snackbar;
 
         public RelayCommand OpenSettingsCommand => new RelayCommand(OpenSettings);
         public RelayCommand<RangeChangedEventArgs> RangeChangedCommand => new RelayCommand<RangeChangedEventArgs>(RangeChanged);
@@ -71,14 +70,22 @@ namespace TrafficGrapher.ViewModel
         public RelayCommand FindIndexCommand => new RelayCommand(FindIndex);
         public RelayCommand<bool> ToggleDarkModeCommand => new RelayCommand<bool>(ToggleDarkMode);
 
-        private void HostSettingsChanged(object source, bool changed)
+        public MainViewModel(IDialogService dialogService, ISnackbarMessageQueue snackbar)
         {
-            if (changed) Graph?.Stop();
+            DarkModeEnabled = Properties.Settings.Default.DarkModeEnabled;
+            _dialogService = (DialogService) dialogService;
+            _snackbar = (SnackbarMessageQueue) snackbar;
+            Messenger.Default.Register<SettingsChangedMessage>(this, SettingsChanged);
+            Messenger.Default.Register<CloseDialogMessage>(this, CloseDialog);
+        }
+
+        private void SettingsChanged(SettingsChangedMessage message)
+        {
+            if (message.Changed) Graph?.Stop();
         }
         private async void OpenSettings()
         {
-            CheckDialogOpen();
-            await DialogHost.Show(new GraphSettingsModal { DataContext = this }, DialogIdentifier);
+            await _dialogService.ShowDialog<GraphSettingsModal>(new GraphSettingsModal {DataContext = this});
         }
 
         private void RangeChanged(RangeChangedEventArgs args)
@@ -105,7 +112,7 @@ namespace TrafficGrapher.ViewModel
             GraphSettings.Formatter = x => new DateTime((long)x).ToString("yyyy");
         }
 
-        private async void SaveToPng(FrameworkElement visual)
+        private void SaveToPng(FrameworkElement visual)
         {
             var encoder = new PngBitmapEncoder();
             var fd = new SaveFileDialog()
@@ -117,6 +124,7 @@ namespace TrafficGrapher.ViewModel
             if (!fd.ShowDialog() == true) return;
 
             EncodeVisual(visual, fd.FileName, encoder);
+            _snackbar.Enqueue($"Graph image saved to {fd.FileName}.", "Ok", () => { });
         }
 
         private static void EncodeVisual(FrameworkElement visual, string fileName, BitmapEncoder encoder)
@@ -157,6 +165,7 @@ namespace TrafficGrapher.ViewModel
             Properties.Settings.Default.DefaultTimeSpan = GraphSettings.DefaultTimeSpan;
             Properties.Settings.Default.DarkModeEnabled = DarkModeEnabled;
             Properties.Settings.Default.Save();
+            _snackbar.Enqueue("Settings saved");
         }
 
         private async void LoadSettings()
@@ -170,16 +179,11 @@ namespace TrafficGrapher.ViewModel
             {
                 GraphSettings = SettingsManager.Read<GraphSettings>(fd.FileName);
                 SaveSettings();
+                _snackbar.Enqueue($"Loaded {fd.FileName} successfully!", "Ok", () => { });
             }
             catch
             {
-                CheckDialogOpen();
-                var errorVm = new ErrorModalViewModel()
-                {
-                    Title = "Error loading Graph Settings!",
-                    Message = "Default settings loaded."
-                };
-                await DialogHost.Show(errorVm, DialogIdentifier);
+                await _dialogService.ShowError("Default settings loaded.", "Error loading Graph Settings!", "Ok", () => { });
                 GraphSettings = new GraphSettings();
             }
             OpenSettings();
@@ -194,6 +198,7 @@ namespace TrafficGrapher.ViewModel
             };
             if (!fd.ShowDialog() == true) return;
             SettingsManager.Write(GraphSettings, fd.FileName);
+            _snackbar.Enqueue($"Exported {fd.FileName} successfully!", "Ok", () => { });
         }
 
         private async void SaveToCsv()
@@ -209,17 +214,12 @@ namespace TrafficGrapher.ViewModel
             {
                 Graph.ToCsv(fd.FileName);
             }));
-        }
-
-        private void CheckDialogOpen()
-        {
-            if (DialogOpen) DialogOpen = false;
+            _snackbar.Enqueue($"Saved {fd.FileName} successfully!", "Ok", () => { });
         }
 
         private async void FindIndex()
         {
-            CheckDialogOpen();
-            var res = await DialogHost.Show(new InterfaceListModal(){DataContext = new InterfaceListViewModel(GraphSettings)}, DialogIdentifier);
+            var res = await _dialogService.ShowDialog<InterfaceListModal>(new InterfaceListModal(){ DataContext = new InterfaceListViewModel(GraphSettings) });
             if (res is InterfaceInfo interfaceInfo)
             {
                 GraphSettings.InterfaceIndex = interfaceInfo.Index;
@@ -230,6 +230,11 @@ namespace TrafficGrapher.ViewModel
         private void ToggleDarkMode(bool darkMode)
         {
             Messenger.Default.Send(new DarkModeEnabledMessage(darkMode));
+        }
+
+        private void CloseDialog(CloseDialogMessage message)
+        {
+            if (message.Close) DialogOpen = false;
         }
     }
 }

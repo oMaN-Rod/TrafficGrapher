@@ -105,15 +105,18 @@
     <Compile Include="Converters\DateTimeConverter.cs" />
     <Compile Include="Converters\EnumBindingSourceExtension.cs" />
     <Compile Include="Converters\EnumDescriptionTypeConverter.cs" />
+    <Compile Include="Model\Messages\CloseDialogMessage.cs" />
     <Compile Include="Model\CounterPrefix.cs" />
     <Compile Include="Model\CounterType.cs" />
     <Compile Include="Model\CounterUnit.cs" />
-    <Compile Include="Model\DarkModeEnabledMessage.cs" />
+    <Compile Include="Model\Messages\DarkModeEnabledMessage.cs" />
     <Compile Include="Model\Graph.cs" />
     <Compile Include="Model\GraphSettings.cs" />
     <Compile Include="Model\InterfaceInfo.cs" />
+    <Compile Include="Model\Messages\SettingsChangedMessage.cs" />
     <Compile Include="Model\Oids.cs" />
     <Compile Include="Model\SettingsManager.cs" />
+    <Compile Include="ViewModel\DialogService.cs" />
     <Compile Include="ViewModel\InterfaceListViewModel.cs" />
     <Compile Include="View\ErrorModal.xaml.cs">
       <DependentUpon>ErrorModal.xaml</DependentUpon>

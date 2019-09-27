@@ -5,6 +5,7 @@ using System.Windows;
 using GalaSoft.MvvmLight.Messaging;
 using MaterialDesignThemes.Wpf;
 using TrafficGrapher.Model;
+using TrafficGrapher.Model.Messages;
 using TrafficGrapher.ViewModel;
 
 namespace TrafficGrapher.View

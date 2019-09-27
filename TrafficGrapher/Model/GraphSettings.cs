@@ -5,6 +5,8 @@ using System.Reflection;
 using System.Windows.Media;
 using System.Xml.Serialization;
 using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Messaging;
+using TrafficGrapher.Model.Messages;
 
 namespace TrafficGrapher.Model
 {
@@ -18,10 +20,6 @@ namespace TrafficGrapher.Model
         private string _snmpCommunity;
         private int _interfaceIndex;
         private string _interfaceName;
-
-        public delegate void SettingsChangedEventHandler(object source, bool changed);
-
-        public event SettingsChangedEventHandler SettingsChanged;
 
         public GraphSettings()
         {
@@ -125,7 +123,7 @@ namespace TrafficGrapher.Model
             set
             {
                 Set(() => IpAddress, ref _ipAddress, value);
-                SettingsChanged?.Invoke(this, true);
+                Messenger.Default.Send(new SettingsChangedMessage(true));
             }
         }
 
@@ -135,7 +133,7 @@ namespace TrafficGrapher.Model
             set
             {
                 Set(() => SnmpCommunity, ref _snmpCommunity, value);
-                SettingsChanged?.Invoke(this, true);
+                Messenger.Default.Send(new SettingsChangedMessage(true));
             }
         }
 
@@ -149,7 +147,7 @@ namespace TrafficGrapher.Model
             set
             {
                 Set(() => InterfaceIndex, ref _interfaceIndex, value);
-                SettingsChanged?.Invoke(this, true);
+                Messenger.Default.Send(new SettingsChangedMessage(true));
             }
         }
 
