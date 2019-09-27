@@ -19,8 +19,9 @@
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{StaticResource MaterialDesignFont}"
         DataContext="{Binding MainViewModel, Source={StaticResource Locator}, Mode=OneTime}"
+        Loaded="MainWindow_OnLoaded"
         Closed="MainWindow_OnClosed">
-    <materialDesign:DialogHost Identifier="GraphRootDialog" IsOpen="{Binding DialogOpen}">
+    <materialDesign:DialogHost Identifier="GraphRootDialog" IsOpen="{Binding DialogOpen}" DialogTheme="{Binding WindowTheme}">
         <materialDesign:DialogHost.DialogContentTemplate>
             <DataTemplate>
                 <DataTemplate.Resources>

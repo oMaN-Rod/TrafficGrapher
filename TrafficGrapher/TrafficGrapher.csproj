@@ -108,6 +108,7 @@
     <Compile Include="Model\CounterPrefix.cs" />
     <Compile Include="Model\CounterType.cs" />
     <Compile Include="Model\CounterUnit.cs" />
+    <Compile Include="Model\DarkModeEnabledMessage.cs" />
     <Compile Include="Model\Graph.cs" />
     <Compile Include="Model\GraphSettings.cs" />
     <Compile Include="Model\InterfaceInfo.cs" />

@@ -1,5 +1,6 @@
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
+using GalaSoft.MvvmLight.Messaging;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -21,6 +22,8 @@ namespace TrafficGrapher.ViewModel
         private GraphSettings _graphSettings;
         private Graph _graph;
         private bool _dialogOpen;
+        private BaseTheme _windowTheme;
+        private bool _darkModeEnabled;
         
         public GraphSettings GraphSettings
         {
@@ -38,10 +41,21 @@ namespace TrafficGrapher.ViewModel
             set { Set(() => DialogOpen, ref _dialogOpen, value); }
         }
 
-        
+        public BaseTheme WindowTheme
+        {
+            get => _windowTheme;
+            set { Set(() => WindowTheme, ref _windowTheme, value); }
+        }
+
+        public bool DarkModeEnabled
+        {
+            get => _darkModeEnabled;
+            set { Set(() => DarkModeEnabled, ref _darkModeEnabled, value); }
+        }
         public MainViewModel()
         {
             GraphSettings.SettingsChanged += HostSettingsChanged;
+            DarkModeEnabled = Properties.Settings.Default.DarkModeEnabled;
         }
 
         public RelayCommand OpenSettingsCommand => new RelayCommand(OpenSettings);
@@ -54,8 +68,8 @@ namespace TrafficGrapher.ViewModel
         public RelayCommand LoadSettingsCommand => new RelayCommand(LoadSettings);
         public RelayCommand ExportSettingsCommand => new RelayCommand(ExportSettings);
         public RelayCommand SaveToCsvCommand => new RelayCommand(SaveToCsv);
-
         public RelayCommand FindIndexCommand => new RelayCommand(FindIndex);
+        public RelayCommand<bool> ToggleDarkModeCommand => new RelayCommand<bool>(ToggleDarkMode);
 
         private void HostSettingsChanged(object source, bool changed)
         {
@@ -141,6 +155,7 @@ namespace TrafficGrapher.ViewModel
             Properties.Settings.Default.CounterPrefix = GraphSettings.CounterPrefix.ToString();
             Properties.Settings.Default.PollInterval = GraphSettings.PollInterval;
             Properties.Settings.Default.DefaultTimeSpan = GraphSettings.DefaultTimeSpan;
+            Properties.Settings.Default.DarkModeEnabled = DarkModeEnabled;
             Properties.Settings.Default.Save();
         }
 
@@ -210,6 +225,11 @@ namespace TrafficGrapher.ViewModel
                 GraphSettings.InterfaceIndex = interfaceInfo.Index;
             }
             OpenSettings();
+        }
+
+        private void ToggleDarkMode(bool darkMode)
+        {
+            Messenger.Default.Send(new DarkModeEnabledMessage(darkMode));
         }
     }
 }

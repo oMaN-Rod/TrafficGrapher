@@ -106,22 +106,7 @@ namespace TrafficGrapher.Properties {
                 this["CounterUnit"] = value;
             }
         }
-
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Mega")]
-        public string CounterPrefix
-        {
-            get
-            {
-                return ((string)(this["CounterPrefix"]));
-            }
-            set
-            {
-                this["CounterPrefix"] = value;
-            }
-        }
-
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("1000")]
@@ -143,6 +128,30 @@ namespace TrafficGrapher.Properties {
             }
             set {
                 this["DefaultTimeSpan"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Mega")]
+        public string CounterPrefix {
+            get {
+                return ((string)(this["CounterPrefix"]));
+            }
+            set {
+                this["CounterPrefix"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool DarkModeEnabled {
+            get {
+                return ((bool)(this["DarkModeEnabled"]));
+            }
+            set {
+                this["DarkModeEnabled"] = value;
             }
         }
     }
