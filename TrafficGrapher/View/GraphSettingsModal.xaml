@@ -9,17 +9,53 @@
              xmlns:data="clr-namespace:TrafficGrapher.Model"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid Width="640">
+    <Grid Width="720">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
         <GroupBox Style="{DynamicResource MaterialDesignCardGroupBox}"
                   Margin="4"
                   HorizontalAlignment="Stretch"
-                  Grid.Row="0">
+                  Grid.Row="0" Grid.ColumnSpan="2">
+            <GroupBox.HeaderTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <materialDesign:PackIcon Grid.Column="0" 
+                                                 Kind="InfoOutline"
+                                                 Height="32"
+                                                 Width="32"
+                                                 VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="1" Margin="8,0,0,0"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource MaterialDesignSubheadingTextBlock}"
+                                   Text="APP SETTINGS" />
+                    </Grid>
+                </DataTemplate>
+            </GroupBox.HeaderTemplate>
+            <Grid>
+                <StackPanel Orientation="Horizontal" Margin="8">
+                    <TextBlock VerticalAlignment="Center">Light</TextBlock>
+                    <ToggleButton Margin="8 0 16 0" Command="{Binding ToggleDarkModeCommand}"
+                                  IsChecked="{Binding DarkModeEnabled}"
+                                  CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" />
+                    <TextBlock VerticalAlignment="Center">Dark</TextBlock>
+                </StackPanel>
+            </Grid>
+        </GroupBox>
+        <GroupBox Style="{DynamicResource MaterialDesignCardGroupBox}"
+                  Margin="4"
+                  HorizontalAlignment="Stretch"
+                  Grid.Row="1" Grid.Column="0">
             <GroupBox.HeaderTemplate>
                 <DataTemplate>
                     <Grid>
@@ -45,8 +81,8 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <TextBox x:Name="IpAddress" 
@@ -78,13 +114,10 @@
                              materialDesign:HintAssist.Hint="PORT INDEX"
                              ToolTip="Integer value representing the OID Port Index for the interface to monitor"/>
                     <Button Grid.Column="1" DockPanel.Dock="Right" Command="{Binding FindIndexCommand}"
-                            Style="{StaticResource MaterialDesignRaisedAccentButton}"
+                            Style="{StaticResource MaterialDesignFlatAccentButton}"
                             ToolTip="GET INDEX"
-                            ToolBar.OverflowMode="AsNeeded"
-                            Margin="4"
-                            Width="45">
-                        <materialDesign:PackIcon
-                            Kind="Search" />
+                            VerticalAlignment="Bottom">
+                        <materialDesign:PackIcon Kind="Search" Width="12"/>
                     </Button>
                 </Grid>
 
@@ -98,7 +131,7 @@
         <GroupBox Style="{DynamicResource MaterialDesignCardGroupBox}"
                   Margin="4"
                   HorizontalAlignment="Stretch"
-                  Grid.Row="1">
+                  Grid.Row="1" Grid.Column="1">
             <GroupBox.HeaderTemplate>
                 <DataTemplate>
                     <Grid>
@@ -183,40 +216,8 @@
                 </ComboBox>
             </Grid>
         </GroupBox>
-        <GroupBox Style="{DynamicResource MaterialDesignCardGroupBox}"
-                  Margin="4"
-                  HorizontalAlignment="Stretch"
-                  Grid.Row="2">
-            <GroupBox.HeaderTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <materialDesign:PackIcon Grid.Column="0" 
-                                                 Kind="InfoOutline"
-                                                 Height="32"
-                                                 Width="32"
-                                                 VerticalAlignment="Center" />
-                        <TextBlock Grid.Column="1" Margin="8,0,0,0"
-                                   VerticalAlignment="Center"
-                                   Style="{StaticResource MaterialDesignSubheadingTextBlock}"
-                                   Text="APP SETTINGS" />
-                    </Grid>
-                </DataTemplate>
-            </GroupBox.HeaderTemplate>
-            <Grid>
-                <StackPanel Orientation="Horizontal" Margin="8">
-                    <TextBlock VerticalAlignment="Center">Light</TextBlock>
-                    <ToggleButton Margin="8 0 16 0" Command="{Binding ToggleDarkModeCommand}"
-                                  IsChecked="{Binding DarkModeEnabled}"
-                                  CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" />
-                    <TextBlock VerticalAlignment="Center">Dark</TextBlock>
-                </StackPanel>
-            </Grid>
-        </GroupBox>
-        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
+        
+        <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Command="{Binding SaveSettingsCommand}"
                     Style="{StaticResource MaterialDesignFlatButton}"
                     Content="SAVE"
