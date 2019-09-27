@@ -6,6 +6,7 @@ Small lightweight SNMP based Traffic Grapher which enables monitoring real-time 
 
 TrafficGrapher is capable of the following:
 
+- Supports SNMPv2
 - Supports both 32 and 64 bit counters
 - Supports displaying results in bits or bytes
 - Supports Zoom and Scroll
