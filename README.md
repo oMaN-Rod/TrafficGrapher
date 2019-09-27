@@ -28,15 +28,19 @@ TrafficGrapher was built using the following libraries, it is thanks to these to
 
 ## Screenshots
 
-Main view
+### Main view
 
 ![Main View](https://github.com/oMaN-Rod/TrafficGrapher/raw/master/web/images/main.png "Main View")
 
-Preferences
+### Dark Mode
+
+![Dark Mode](https://github.com/oMaN-Rod/TrafficGrapher/raw/master/web/images/dark.png "Dark Mode")
+
+### Preferences
 
 ![Menu](https://github.com/oMaN-Rod/TrafficGrapher/raw/master/web/images/menu.png "Menu")
 
-Interface Index Lookup
+### Interface Index Lookup
 
 ![Interface Lookup](https://github.com/oMaN-Rod/TrafficGrapher/raw/master/web/images/interfaces.png "Interface Lookup")
 
