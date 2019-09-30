@@ -14,18 +14,19 @@ namespace TrafficGrapher.Model
 {
     public class Graph : ViewModelBase
     {
-        private bool _isPolling;
         private CancellationTokenSource _tokenSource;
         private CancellationToken _cancellationToken;
         private readonly GraphSettings _graphSettings;
 
         private GearedValues<DateTimePoint> _in, _out;
         private double _from, _to, _count;
-        private string _units, _inLegend, _outLegend, _pollState;
+        private string _units, _inLegend, _outLegend;
+        private PollState _pollState;
 
         public Graph(GraphSettings graphSettings)
         {
             _graphSettings = graphSettings;
+            _pollState = PollState.Stopped;
         }
 
         public GearedValues<DateTimePoint> In
@@ -99,9 +100,9 @@ namespace TrafficGrapher.Model
             }
         }
 
-        public string PollState
+        public PollState PollState
         {
-            get => _pollState ?? (_pollState = "Idle");
+            get => _pollState;
             set { Set(() => PollState, ref _pollState, value); }
         }
 
@@ -136,10 +137,10 @@ namespace TrafficGrapher.Model
 
         public void Stop()
         {
-            if (!_isPolling) return;
+            if (PollState == PollState.Stopped) return;
             _tokenSource.Cancel();
             _tokenSource?.Dispose();
-            _isPolling = false;
+            PollState = PollState.Stopped;
         }
 
         private double CalculateDifference(double previousPoll, double currentPoll, double elapsedTime)
@@ -172,12 +173,12 @@ namespace TrafficGrapher.Model
 
         public void Start()
         {
-            if (_isPolling) return;
+            if (PollState != PollState.Stopped) return;
             Clear();
             _tokenSource = new CancellationTokenSource();
             _cancellationToken = _tokenSource.Token;
 
-            _isPolling = true;
+            PollState = PollState.Idle;
             var snmp = new Snmp(_graphSettings.IpAddress, _graphSettings.SnmpCommunity);
             Oids.BuildInterfaceOids(_graphSettings.InterfaceIndex);
 
@@ -193,10 +194,10 @@ namespace TrafficGrapher.Model
                 var firstRun = true;
                 var startTime = DateTime.Now;
 
-                while (_isPolling)
+                while (PollState != PollState.Stopped)
                 {
                     if (_cancellationToken.IsCancellationRequested) return;
-                    PollState = "Polling";
+                    PollState = PollState.Polling;
                     if (_graphSettings.CounterType == CounterType.Counter64)
                     {
                         res = snmp.Get(new List<ObjectIdentifier>
@@ -246,7 +247,7 @@ namespace TrafficGrapher.Model
                     Count = In.Count;
                     InLegend = LegendText(inDifference);
                     OutLegend = LegendText(outDifference);
-                    PollState = "Idle";
+                    PollState = PollState.Idle;
                     Thread.Sleep(_graphSettings.PollInterval);
                 }
             }, _cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
@@ -271,6 +272,6 @@ namespace TrafficGrapher.Model
             {
                 writer.Write(sb);
             }
-        } 
+        }
     }
 }

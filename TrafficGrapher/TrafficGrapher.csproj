@@ -115,6 +115,7 @@
     <Compile Include="Model\InterfaceInfo.cs" />
     <Compile Include="Model\Messages\SettingsChangedMessage.cs" />
     <Compile Include="Model\Oids.cs" />
+    <Compile Include="Model\PollState.cs" />
     <Compile Include="Model\SettingsManager.cs" />
     <Compile Include="ViewModel\DialogService.cs" />
     <Compile Include="ViewModel\InterfaceListViewModel.cs" />
