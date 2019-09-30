@@ -59,6 +59,12 @@
                                 <materialDesign:PackIcon
                                 Kind="Play" />
                             </Button>
+                            <Button Command="{Binding PauseCommand}"
+                                    ToolTip="PAUSE"
+                                    ToolBar.OverflowMode="AsNeeded">
+                                <materialDesign:PackIcon
+                                    Kind="Pause" />
+                            </Button>
                             <Button Command="{Binding StopCommand}"
                                 ToolTip="STOP"
                                 ToolBar.OverflowMode="AsNeeded">

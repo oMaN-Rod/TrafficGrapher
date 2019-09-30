@@ -135,6 +135,12 @@ namespace TrafficGrapher.Model
             }
         }
 
+        public void Pause()
+        {
+            if (PollState == PollState.Stopped) return;
+            PollState = PollState.Paused;
+        }
+
         public void Stop()
         {
             if (PollState == PollState.Stopped) return;
@@ -173,12 +179,17 @@ namespace TrafficGrapher.Model
 
         public void Start()
         {
+            if (PollState == PollState.Paused)
+            {
+                PollState = PollState.Idle;
+                return;
+            }
+
             if (PollState != PollState.Stopped) return;
             Clear();
             _tokenSource = new CancellationTokenSource();
             _cancellationToken = _tokenSource.Token;
 
-            PollState = PollState.Idle;
             var snmp = new Snmp(_graphSettings.IpAddress, _graphSettings.SnmpCommunity);
             Oids.BuildInterfaceOids(_graphSettings.InterfaceIndex);
 
@@ -194,9 +205,15 @@ namespace TrafficGrapher.Model
                 var firstRun = true;
                 var startTime = DateTime.Now;
 
+                PollState = PollState.Idle;
                 while (PollState != PollState.Stopped)
                 {
                     if (_cancellationToken.IsCancellationRequested) return;
+                    if (PollState == PollState.Paused)
+                    {
+                        Thread.Sleep(_graphSettings.PollInterval);
+                        continue;
+                    }
                     PollState = PollState.Polling;
                     if (_graphSettings.CounterType == CounterType.Counter64)
                     {

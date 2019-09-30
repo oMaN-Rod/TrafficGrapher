@@ -62,6 +62,7 @@ namespace TrafficGrapher.ViewModel
         public RelayCommand<FrameworkElement> SavePngCommand => new RelayCommand<FrameworkElement>(SaveToPng);
         public RelayCommand StartCommand => new RelayCommand(Start);
         public RelayCommand StopCommand => new RelayCommand(Stop);
+        public RelayCommand PauseCommand => new RelayCommand(Pause);
         public RelayCommand ClearCommand => new RelayCommand(Clear);
         public RelayCommand SaveSettingsCommand => new RelayCommand(SaveSettings);
         public RelayCommand LoadSettingsCommand => new RelayCommand(LoadSettings);
@@ -138,8 +139,13 @@ namespace TrafficGrapher.ViewModel
 
         private void Start()
         {
-            Graph = new Graph(GraphSettings);
+            if(Graph?.PollState != PollState.Paused) Graph = new Graph(GraphSettings);
             Graph.Start();
+        }
+
+        private void Pause()
+        {
+            Graph?.Pause();
         }
 
         private void Stop()
