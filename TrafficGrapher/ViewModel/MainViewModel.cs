@@ -12,6 +12,7 @@ using LiveCharts.Events;
 using MaterialDesignThemes.Wpf;
 using Microsoft.Win32;
 using TrafficGrapher.Model;
+using TrafficGrapher.Model.Enums;
 using TrafficGrapher.Model.Messages;
 using TrafficGrapher.View;
 
@@ -68,7 +69,7 @@ namespace TrafficGrapher.ViewModel
         public RelayCommand LoadSettingsCommand => new RelayCommand(LoadSettings);
         public RelayCommand ExportSettingsCommand => new RelayCommand(ExportSettings);
         public RelayCommand SaveToCsvCommand => new RelayCommand(SaveToCsv);
-        public RelayCommand FindIndexCommand => new RelayCommand(FindIndex);
+        public RelayCommand FindIndexCommand => new RelayCommand(GetInterfaceIndex);
         public RelayCommand<bool> ToggleDarkModeCommand => new RelayCommand<bool>(ToggleDarkMode);
 
         public MainViewModel(IDialogService dialogService, ISnackbarMessageQueue snackbar)
@@ -79,7 +80,6 @@ namespace TrafficGrapher.ViewModel
             Messenger.Default.Register<SettingsChangedMessage>(this, SettingsChanged);
             Messenger.Default.Register<CloseDialogMessage>(this, CloseDialog);
         }
-
         private void SettingsChanged(SettingsChangedMessage message)
         {
             if (message.Changed) Graph?.Stop();
@@ -139,7 +139,7 @@ namespace TrafficGrapher.ViewModel
 
         private void Start()
         {
-            if(Graph?.PollState != PollState.Paused) Graph = new Graph(GraphSettings);
+            if(Graph?.PollState != PollState.Paused) Graph = new Graph(_dialogService,GraphSettings);
             Graph.Start();
         }
 
@@ -225,9 +225,12 @@ namespace TrafficGrapher.ViewModel
             _snackbar.Enqueue($"Saved {fd.FileName} successfully!", "Ok", () => { });
         }
 
-        private async void FindIndex()
+        private async void GetInterfaceIndex()
         {
-            var res = await _dialogService.ShowDialog<InterfaceListModal>(new InterfaceListModal(){ DataContext = new InterfaceListViewModel(GraphSettings) });
+            var dialog = new InterfaceListModal();
+            ((InterfaceListViewModel) dialog.DataContext).GetInterfaceList(GraphSettings);
+
+            var res = await _dialogService.ShowDialog<InterfaceListModal>(dialog);
             if (res is InterfaceInfo interfaceInfo)
             {
                 GraphSettings.InterfaceIndex = interfaceInfo.Index;

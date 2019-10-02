@@ -133,7 +133,7 @@ namespace TrafficGrapher.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Mega")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Auto")]
         public string CounterPrefix {
             get {
                 return ((string)(this["CounterPrefix"]));

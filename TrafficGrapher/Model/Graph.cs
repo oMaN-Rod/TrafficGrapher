@@ -1,14 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using GalaSoft.MvvmLight;
-using Lextm.SharpSnmpLib;
+using GalaSoft.MvvmLight.Views;
 using LiveCharts.Defaults;
 using LiveCharts.Geared;
+using TrafficGrapher.Model.Enums;
+using TimeoutException = Lextm.SharpSnmpLib.Messaging.TimeoutException;
 
 namespace TrafficGrapher.Model
 {
@@ -16,16 +18,17 @@ namespace TrafficGrapher.Model
     {
         private CancellationTokenSource _tokenSource;
         private CancellationToken _cancellationToken;
-        private readonly GraphSettings _graphSettings;
-
         private GearedValues<DateTimePoint> _in, _out;
         private double _from, _to, _count;
-        private string _units, _inLegend, _outLegend;
+        private string _inLegend, _outLegend;
         private PollState _pollState;
+        private readonly IDialogService _dialogService;
+        private readonly GraphSettings _graphSettings;
 
-        public Graph(GraphSettings graphSettings)
+        public Graph(IDialogService dialogService, GraphSettings graphSettings)
         {
             _graphSettings = graphSettings;
+            _dialogService = dialogService;
             _pollState = PollState.Stopped;
         }
 
@@ -58,11 +61,7 @@ namespace TrafficGrapher.Model
             get => _count;
             set { Set(() => Count, ref _count, value); }
         }
-        public string Units
-        {
-            get => _units;
-            set { Set(() => Units, ref _units, value); }
-        }
+        public string Units => _graphSettings.CounterUnit == CounterUnit.Bits ? "bps" : "Bps";
 
         public string InMinLegend => In.Count >= 1 ? LegendText(In.Select(p => p.Value).ToArray().Min()) : "";
 
@@ -108,7 +107,7 @@ namespace TrafficGrapher.Model
 
         private string LegendText(double difference)
         {
-            Units = _graphSettings.CounterUnit == CounterUnit.Bits ? "bps" : "Bps";
+            RaisePropertyChanged(nameof(Units));
             switch (_graphSettings.CounterPrefix)
             {
                 case CounterPrefix.Kilo:
@@ -149,34 +148,6 @@ namespace TrafficGrapher.Model
             PollState = PollState.Stopped;
         }
 
-        private double CalculateDifference(double previousPoll, double currentPoll, double elapsedTime)
-        {
-            double octets;
-
-            if (previousPoll > currentPoll)
-            {
-                if (previousPoll < Math.Pow(2, 32))
-                {
-                    octets = Math.Pow(2, 32) - previousPoll + currentPoll;
-                }
-                else if (previousPoll < Math.Pow(2, 64))
-                {
-                    octets = Math.Pow(2, 64) - previousPoll + currentPoll;
-                }
-                else
-                {
-                    return 0;
-                }
-            }
-            else
-            {
-                octets = currentPoll - previousPoll;
-            }
-
-            if (_graphSettings.CounterUnit == CounterUnit.Bits) return octets * 8 / elapsedTime / 1000;
-            return octets / elapsedTime / 1000;
-        }
-
         public void Start()
         {
             if (PollState == PollState.Paused)
@@ -190,84 +161,82 @@ namespace TrafficGrapher.Model
             _tokenSource = new CancellationTokenSource();
             _cancellationToken = _tokenSource.Token;
 
+            Task.Factory.StartNew(Poller, _cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default)
+                .ContinueWith(OnPollError, TaskContinuationOptions.OnlyOnFaulted);
+        }
+
+        private void Poller()
+        {
+            _cancellationToken.ThrowIfCancellationRequested();
             var snmp = new Snmp(_graphSettings.IpAddress, _graphSettings.SnmpCommunity);
-            Oids.BuildInterfaceOids(_graphSettings.InterfaceIndex);
+            _graphSettings.InterfaceName = snmp.Get(Oids.IfName.AddIndex(_graphSettings.InterfaceIndex)).Data.ToString();
 
-            Task.Factory.StartNew(() =>
+            var now = DateTime.Now;
+            var inData = new PollData(now);
+            var outData = new PollData(now);
+            var firstRun = true;
+
+            PollState = PollState.Idle;
+            while (PollState != PollState.Stopped)
             {
-                _cancellationToken.ThrowIfCancellationRequested();
-                var res = snmp.Get(new List<ObjectIdentifier> {Oids.IfName});
-                _graphSettings.InterfaceName = res[0].Data.ToString();
-
-                var previousUpTime = new TimeSpan();
-                double previousIfIn = 0, previousIfOut = 0;
-                double inDifference = 0, outDifference = 0;
-                var firstRun = true;
-                var startTime = DateTime.Now;
-
-                PollState = PollState.Idle;
-                while (PollState != PollState.Stopped)
+                if (_cancellationToken.IsCancellationRequested) return;
+                if (PollState == PollState.Paused)
                 {
-                    if (_cancellationToken.IsCancellationRequested) return;
-                    if (PollState == PollState.Paused)
+                    Thread.Sleep(_graphSettings.PollInterval);
+                    continue;
+                }
+
+                PollState = PollState.Polling;
+                var res = snmp.Get(_graphSettings.CounterType == CounterType.Counter64
+                    ? Oids.StandardCounters(_graphSettings.InterfaceIndex)
+                    : Oids.HighCounters(_graphSettings.InterfaceIndex));
+
+                if (res != null)
+                {
+                    inData.Current = Convert.ToDouble(res[0].Data.ToString());
+                    outData.Current = Convert.ToDouble(res[1].Data.ToString());
+                    inData.UpTime = outData.UpTime = TimeSpan.Parse(res[2].Data.ToString());
+                    inData.PollTime = outData.PollTime = DateTime.Now;
+                    if (inData.PollTime >= inData.StartTime.AddSeconds(_graphSettings.DefaultTimeSpan))
                     {
-                        Thread.Sleep(_graphSettings.PollInterval);
-                        continue;
-                    }
-                    PollState = PollState.Polling;
-                    if (_graphSettings.CounterType == CounterType.Counter64)
-                    {
-                        res = snmp.Get(new List<ObjectIdentifier>
-                            {Oids.IfHcInOctets, Oids.IfHcOutOctets, Oids.SysUpTime});
+                        From = inData.PollTime.Subtract(TimeSpan.FromSeconds(_graphSettings.DefaultTimeSpan)).Ticks;
+                        To = inData.PollTime.Ticks;
                     }
                     else
                     {
-                        res = snmp.Get(new List<ObjectIdentifier>
-                            {Oids.IfInOctets, Oids.IfOutOctets, Oids.SysUpTime});
+                        From = inData.StartTime.Ticks;
+                        To = inData.PollTime.Ticks;
                     }
 
-                    if (res != null)
+                    if (Math.Abs(inData.ElapsedTime) > 0 && !firstRun)
                     {
-                        var ifIn = Convert.ToDouble(res[0].Data.ToString());
-                        var ifOut = Convert.ToDouble(res[1].Data.ToString());
-                        var upTime = TimeSpan.Parse(res[2].Data.ToString());
-                        var pollTime = DateTime.Now;
-                        if (pollTime >= startTime.AddSeconds(_graphSettings.DefaultTimeSpan))
-                        {
-                            From = pollTime.Subtract(TimeSpan.FromSeconds(_graphSettings.DefaultTimeSpan)).Ticks;
-                            To = pollTime.Ticks;
-                        }
-                        else
-                        {
-                            From = startTime.Ticks;
-                            To = pollTime.Ticks;
-                        }
-
-                        var elapsedTime = upTime.TotalMilliseconds - previousUpTime.TotalMilliseconds;
-                        if (Math.Abs(elapsedTime) > 0 && !firstRun)
-                        {
-                            inDifference = CalculateDifference(previousIfIn, ifIn, elapsedTime);
-                            outDifference = CalculateDifference(previousIfOut, ifOut, elapsedTime);
-                            In.Add(new DateTimePoint(pollTime, inDifference));
-                            Out.Add(new DateTimePoint(pollTime, outDifference));
-                        }
-                        else if (firstRun)
-                        {
-                            firstRun = false;
-                        }
-
-                        previousUpTime = upTime;
-                        previousIfIn = ifIn;
-                        previousIfOut = ifOut;
+                        In.Add(new DateTimePoint(inData.PollTime, inData.CalcDiff(_graphSettings.CounterUnit)));
+                        Out.Add(new DateTimePoint(outData.PollTime, outData.CalcDiff(_graphSettings.CounterUnit)));
+                    }
+                    else if (firstRun)
+                    {
+                        firstRun = false;
                     }
 
-                    Count = In.Count;
-                    InLegend = LegendText(inDifference);
-                    OutLegend = LegendText(outDifference);
-                    PollState = PollState.Idle;
-                    Thread.Sleep(_graphSettings.PollInterval);
+                    inData.Next();
+                    outData.Next();
                 }
-            }, _cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+
+                Count = In.Count;
+                InLegend = LegendText(inData.Diff);
+                OutLegend = LegendText(outData.Diff);
+                PollState = PollState.Idle;
+                Thread.Sleep(_graphSettings.PollInterval);
+            }
+        }
+
+        private void OnPollError(Task t)
+        {
+            if (t.Exception == null) return;
+            Application.Current.Dispatcher?.Invoke(async () =>
+            {
+                await _dialogService.ShowError($"{(t.Exception.InnerException?.GetType() == typeof(TimeoutException) ? "A timeout" : "An error")} occurred while polling the device, please check your connectivity and configurations and try again", "Error!", string.Empty, () => { });
+            });
         }
 
         public void Clear()

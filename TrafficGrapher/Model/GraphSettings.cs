@@ -6,7 +6,9 @@ using System.Windows.Media;
 using System.Xml.Serialization;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Messaging;
+using TrafficGrapher.Model.Enums;
 using TrafficGrapher.Model.Messages;
+using TrafficGrapher.Properties;
 
 namespace TrafficGrapher.Model
 {
@@ -23,20 +25,20 @@ namespace TrafficGrapher.Model
 
         public GraphSettings()
         {
-            IpAddress = Properties.Settings.Default.IpAddress;
-            SnmpCommunity = Properties.Settings.Default.SnmpCommunity;
-            InterfaceIndex = Properties.Settings.Default.Index;
-            InColorName = Properties.Settings.Default.InColor;
-            OutColorName = Properties.Settings.Default.OutColor;
-            PollInterval = Properties.Settings.Default.PollInterval;
-            DefaultTimeSpan = Properties.Settings.Default.DefaultTimeSpan;
-            CounterType = Enum.TryParse(Properties.Settings.Default.CounterType, true, out CounterType counterType)
+            IpAddress = Settings.Default.IpAddress;
+            SnmpCommunity = Settings.Default.SnmpCommunity;
+            InterfaceIndex = Settings.Default.Index;
+            InColorName = Settings.Default.InColor;
+            OutColorName = Settings.Default.OutColor;
+            PollInterval = Settings.Default.PollInterval;
+            DefaultTimeSpan = Settings.Default.DefaultTimeSpan;
+            CounterType = Enum.TryParse(Settings.Default.CounterType, true, out CounterType counterType)
                 ? counterType
                 : CounterType.Counter64;
-            CounterUnit = Enum.TryParse(Properties.Settings.Default.CounterUnit, true, out CounterUnit counterUnit)
+            CounterUnit = Enum.TryParse(Settings.Default.CounterUnit, true, out CounterUnit counterUnit)
                 ? counterUnit
                 : CounterUnit.Bits;
-            CounterPrefix = Enum.TryParse(Properties.Settings.Default.CounterPrefix, true, out CounterPrefix counterPrefix)
+            CounterPrefix = Enum.TryParse(Settings.Default.CounterPrefix, true, out CounterPrefix counterPrefix)
                 ? counterPrefix
                 : CounterPrefix.Mega;
         }

@@ -30,7 +30,7 @@
       <Value Profile="(Default)">30</Value>
     </Setting>
     <Setting Name="CounterPrefix" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Mega</Value>
+      <Value Profile="(Default)">Auto</Value>
     </Setting>
     <Setting Name="DarkModeEnabled" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>

@@ -1,24 +1,30 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
+using System.Windows;
 using GalaSoft.MvvmLight;
 using Lextm.SharpSnmpLib;
-using MaterialDesignThemes.Wpf;
 using TrafficGrapher.Model;
-using TrafficGrapher.View;
+using TrafficGrapher.Model.Enums;
+using TimeoutException = Lextm.SharpSnmpLib.Messaging.TimeoutException;
 
 namespace TrafficGrapher.ViewModel
 {
-    public class InterfaceListViewModel: ViewModelBase
+    public class InterfaceListViewModel : ViewModelBase
     {
-        private List<InterfaceInfo> _interfaces;
+        private ObservableCollection<InterfaceInfo> _interfaces;
         private InterfaceInfo _selectedInterface;
         private bool _listVisible = true;
         private string _errorMsg;
         private bool _isBusy;
 
-        public List<InterfaceInfo> Interfaces
+        public ObservableCollection<InterfaceInfo> Interfaces
         {
-            get => _interfaces ?? (_interfaces = new List<InterfaceInfo>());
+            get => _interfaces ?? (_interfaces = new ObservableCollection<InterfaceInfo>());
             set { Set(() => Interfaces, ref _interfaces, value); }
         }
 
@@ -45,36 +51,103 @@ namespace TrafficGrapher.ViewModel
             get => _isBusy;
             set { Set(() => IsBusy, ref _isBusy, value); }
         }
-        public InterfaceListViewModel(GraphSettings settings)
+
+        public void GetInterfaceList(GraphSettings settings)
         {
-            BuildList(settings);
+            ListVisible = false;
+            IsBusy = true;
+
+            Task.Run(() => GetInterfaceInfo(settings)).ContinueWith(t =>
+            {
+                if (t.Exception != null)
+                {
+                    IsBusy = false;
+                    ErrorMsg = $"{(t.Exception.InnerException?.GetType() == typeof(TimeoutException) ? "A timeout" : "An error")} occurred while polling the device, please check your connectivity and configurations and try again";
+                }
+                else
+                {
+                    ListVisible = true;
+                }
+            });
         }
 
-        private void BuildList(GraphSettings settings)
+        public IPAddress ParseIP(Variable variable)
+        {
+            if (variable == null) return null;
+            return IPAddress.TryParse(variable.Id.ToString().Replace(Oids.IfIpAddress.TextualId, "").TrimEnd('.').TrimStart('.'),
+                out IPAddress address) ? address : null;
+        }
+
+        private void GetInterfaceInfo(GraphSettings settings)
         {
             var snmp = new Snmp(settings.IpAddress, settings.SnmpCommunity);
-            ListVisible = false;
-            Task.Factory.StartNew(() =>
+            IList<Variable> res;
+            res = snmp.Walk(Oids.IfIndex.RootNode);
+
+            foreach (var variable in res)
             {
+                if (!int.TryParse(variable.Data.ToString(), out int idx)) continue;
+                IList<Variable> interfaces = new List<Variable>();
+                IList<Variable> ips = new List<Variable>();
                 try
                 {
-                    foreach (var variable in snmp.Walk(new ObjectIdentifier(".1.3.6.1.2.1.31.1.1.1.1")))
-                    {
-                        var index = variable.Id.ToString().Substring(variable.Id.ToString().LastIndexOf('.') + 1);
-                        if (!int.TryParse(index, out int idx)) continue;
-                        Oids.BuildInterfaceOids(idx);
-                        var alias = snmp.Get(Oids.IfAlias);
-                        Interfaces.Add(new InterfaceInfo(idx, variable.Data.ToString(), alias.Data.ToString()));
-                    }
-                    ListVisible = true;
+                    interfaces = snmp.Get(Oids.InterfaceInfo(idx));
+                    ips = snmp.Walk(Oids.IfIpAddress.RootNode);
                 }
                 catch
                 {
-                    IsBusy = false;
-                    ErrorMsg = "There was an error polling the device interfaces, please check your settings and try again";
+                    continue;
                 }
-            });
-            IsBusy = true;
+
+                IPAddress ip = null;
+                if (ips.Count > 0)
+                {
+                    ip = ParseIP(ips.FirstOrDefault(r => r.Data.ToString() == idx.ToString()));
+                }
+
+                var interfaceInfo = new InterfaceInfo()
+                {
+                    Index = idx,
+                    Description = interfaces.Single(r => r.Id == Oids.IfDescr.AddIndex(idx)).Data.ToString(),
+                    Mtu = int.TryParse(interfaces.Single(r => r.Id == Oids.IfMtu.AddIndex(idx)).ToString(),
+                        out int mtu)
+                        ? mtu
+                        : 0,
+                    Speed = interfaces.Single(r => r.Id == Oids.IfSpeed.AddIndex(idx)).Data.ToString(),
+                    PhyAddress = string.Join(":",
+                        ((OctetString) interfaces.Single(r => r.Id == Oids.IfPhysAddress.AddIndex(idx)).Data)
+                        .GetRaw()
+                        .ToList()
+                        .Select(v => v.ToString("X2", CultureInfo.InvariantCulture))),
+                    AdminStatus =
+                        int.TryParse(
+                            interfaces.Single(r => r.Id == Oids.IfAdminStatus.AddIndex(idx)).Data.ToString(),
+                            out int adminRes)
+                            ? (Status) Enum.ToObject(typeof(Status), adminRes)
+                            : Status.Invalid,
+                    OperStatus =
+                        int.TryParse(
+                            interfaces.Single(r => r.Id == Oids.IfOperStatus.AddIndex(idx)).Data.ToString(),
+                            out int operRes)
+                            ? (Status) Enum.ToObject(typeof(Status), operRes)
+                            : Status.Invalid,
+                    Name = interfaces.Single(r => r.Id == Oids.IfName.AddIndex(idx)).Data.ToString(),
+                    HighSpeed = interfaces.Single(r => r.Id == Oids.IfHighSpeed.AddIndex(idx)).Data.ToString(),
+                    Alias = interfaces.Single(r => r.Id == Oids.IfAlias.AddIndex(idx)).Data.ToString(),
+                    Duplex = int.TryParse(
+                        interfaces.Single(r => r.Id == Oids.IfDuplex.AddIndex(idx)).Data.ToString(),
+                        out int duplexRes)
+                        ? (Duplex) Enum.ToObject(typeof(Duplex), duplexRes)
+                        : Duplex.Invalid,
+                    IpAddress = ip
+
+                };
+
+                Application.Current.Dispatcher?.Invoke(() =>
+                {
+                    Interfaces.Add(interfaceInfo);
+                });
+            }
         }
     }
 }

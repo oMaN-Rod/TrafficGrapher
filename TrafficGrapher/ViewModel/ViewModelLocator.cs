@@ -12,11 +12,14 @@ namespace TrafficGrapher.ViewModel
         {
             ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
             SimpleIoc.Default.Register<MainViewModel>();
+            SimpleIoc.Default.Register<InterfaceListViewModel>();
             SimpleIoc.Default.Register<IDialogService, DialogService>();
             SimpleIoc.Default.Register<ISnackbarMessageQueue>(() => new SnackbarMessageQueue());
         }
 
         public MainViewModel MainViewModel => ServiceLocator.Current.GetInstance<MainViewModel>(Guid.NewGuid().ToString());
+
+        public InterfaceListViewModel InterfaceListViewModel => ServiceLocator.Current.GetInstance<InterfaceListViewModel>(Guid.NewGuid().ToString());
 
         public static void Cleanup()
         {

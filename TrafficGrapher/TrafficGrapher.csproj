@@ -31,12 +31,13 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>TrafficGrapher.ico</ApplicationIcon>
@@ -105,18 +106,24 @@
     <Compile Include="Converters\DateTimeConverter.cs" />
     <Compile Include="Converters\EnumBindingSourceExtension.cs" />
     <Compile Include="Converters\EnumDescriptionTypeConverter.cs" />
+    <Compile Include="Model\Enums\Duplex.cs" />
     <Compile Include="Model\Messages\CloseDialogMessage.cs" />
-    <Compile Include="Model\CounterPrefix.cs" />
-    <Compile Include="Model\CounterType.cs" />
-    <Compile Include="Model\CounterUnit.cs" />
+    <Compile Include="Model\Enums\CounterPrefix.cs" />
+    <Compile Include="Model\Enums\CounterType.cs" />
+    <Compile Include="Model\Enums\CounterUnit.cs" />
     <Compile Include="Model\Messages\DarkModeEnabledMessage.cs" />
     <Compile Include="Model\Graph.cs" />
     <Compile Include="Model\GraphSettings.cs" />
     <Compile Include="Model\InterfaceInfo.cs" />
     <Compile Include="Model\Messages\SettingsChangedMessage.cs" />
+    <Compile Include="Model\Oid.cs" />
     <Compile Include="Model\Oids.cs" />
-    <Compile Include="Model\PollState.cs" />
+    <Compile Include="Model\Enums\PollState.cs" />
+    <Compile Include="Model\Enums\PortMode.cs" />
+    <Compile Include="Model\Enums\PortSpeed.cs" />
+    <Compile Include="Model\PollData.cs" />
     <Compile Include="Model\SettingsManager.cs" />
+    <Compile Include="Model\Enums\Status.cs" />
     <Compile Include="ViewModel\DialogService.cs" />
     <Compile Include="ViewModel\InterfaceListViewModel.cs" />
     <Compile Include="View\ErrorModal.xaml.cs">
@@ -160,7 +167,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Model\Snmp.cs" />
-    <Compile Include="Properties\Annotations.cs" />
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

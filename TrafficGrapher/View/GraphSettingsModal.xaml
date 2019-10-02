@@ -7,6 +7,7 @@
              xmlns:validationRules="clr-namespace:TrafficGrapher.ValidationRules"
              xmlns:converters="clr-namespace:TrafficGrapher.Converters"
              xmlns:data="clr-namespace:TrafficGrapher.Model"
+             xmlns:enum="clr-namespace:TrafficGrapher.Model.Enums"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid Width="720">
@@ -123,7 +124,7 @@
 
                 <ComboBox Grid.Row="1" Grid.Column="1" x:Name="CounterType"
                           SelectedItem="{Binding GraphSettings.CounterType}"
-                          ItemsSource="{Binding Source={converters:EnumBindingSource {x:Type data:CounterType}}}"
+                          ItemsSource="{Binding Source={converters:EnumBindingSource {x:Type enum:CounterType}}}"
                           materialDesign:HintAssist.Hint="COUNTER TYPE"
                           ToolTip="Standard (32bit) or High Counter (64Bit)"/>
             </Grid>
@@ -176,12 +177,12 @@
                          ToolTip="Default time span for displaying data points (scroll time span)"/>
                 <ComboBox Grid.Row="1" Grid.Column="0" x:Name="CounterUnit"
                           SelectedItem="{Binding GraphSettings.CounterUnit}"
-                          ItemsSource="{Binding Source={converters:EnumBindingSource {x:Type data:CounterUnit}}}"
+                          ItemsSource="{Binding Source={converters:EnumBindingSource {x:Type enum:CounterUnit}}}"
                           materialDesign:HintAssist.Hint="GRAPH UNITS"
                           ToolTip="Display data in Bits or Bytes"/>
                 <ComboBox Grid.Row="1" Grid.Column="1" x:Name="CounterPrefix"
                           SelectedItem="{Binding GraphSettings.CounterPrefix}"
-                          ItemsSource="{Binding Source={converters:EnumBindingSource {x:Type data:CounterPrefix}}}"
+                          ItemsSource="{Binding Source={converters:EnumBindingSource {x:Type enum:CounterPrefix}}}"
                           materialDesign:HintAssist.Hint="UNIT PREFIX"
                           ToolTip="Display data in Kilo, Mega or Giga"/>
                 <ComboBox  x:Name="InColor" 

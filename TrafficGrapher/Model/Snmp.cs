@@ -33,7 +33,7 @@ namespace TrafficGrapher.Model
                 new IPEndPoint(IPAddress.Parse(_host), 161),
                 new OctetString(_community),
                 new List<Variable> {new Variable(oid)},
-                5000);
+                3000);
             return result[0];
         }
 

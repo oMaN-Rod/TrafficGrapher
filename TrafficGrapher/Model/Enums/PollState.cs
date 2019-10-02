@@ -1,4 +1,4 @@
-﻿namespace TrafficGrapher.Model
+﻿namespace TrafficGrapher.Model.Enums
 {
     public enum PollState
     {

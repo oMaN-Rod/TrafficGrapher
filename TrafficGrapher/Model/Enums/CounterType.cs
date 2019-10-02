@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using TrafficGrapher.Converters;
 
-namespace TrafficGrapher.Model
+namespace TrafficGrapher.Model.Enums
 {
     [TypeConverter(typeof(EnumDescriptionTypeConverter))]
     public enum CounterType
