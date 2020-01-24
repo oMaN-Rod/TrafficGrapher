@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using GalaSoft.MvvmLight.Messaging;
 using MaterialDesignThemes.Wpf;
 using TrafficGrapher.Model;
+using TrafficGrapher.Model.Enums;
 using TrafficGrapher.Model.Messages;
 using TrafficGrapher.ViewModel;
 
@@ -15,10 +17,27 @@ namespace TrafficGrapher.View
     /// </summary>
     public partial class MainWindow : Window
     {
+        private readonly Dictionary<string,string> _args;
         public MainWindow()
         {
             InitializeComponent();
+            _args = ParseCommandLineArgs();
+
             Messenger.Default.Register<DarkModeEnabledMessage>(this, SetLightDark);
+        }
+
+        private Dictionary<string, string> ParseCommandLineArgs()
+        {
+            var commandLineArgs = Environment.GetCommandLineArgs();
+            var args = new Dictionary<string, string>();
+
+            for (var idx = 1; idx < commandLineArgs.Length; idx += 2)
+            {
+                var arg = commandLineArgs[idx].Replace("/", "");
+                args.Add(arg, commandLineArgs[idx + 1]);
+            }
+
+            return args;
         }
 
         private void MainWindow_OnClosed(object sender, EventArgs e)
@@ -29,6 +48,61 @@ namespace TrafficGrapher.View
         private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
             SetLightDark(new DarkModeEnabledMessage(Properties.Settings.Default.DarkModeEnabled));
+            if (_args.Count >= 1)
+            {
+                var vm = (MainViewModel) DataContext;
+                foreach (KeyValuePair<string,string> item in _args)
+                {
+                    switch (item.Key)
+                    {
+                        case "i":
+                        case "ip":
+                            vm.GraphSettings.IpAddress = item.Value;
+                            break;
+                        case "s":
+                        case "snmpcommunity":
+                            vm.GraphSettings.SnmpCommunity = item.Value;
+                            break;
+                        case "p":
+                        case "portindex":
+                            if (int.TryParse(item.Value, out int index))
+                            {
+                                vm.GraphSettings.InterfaceIndex = index;
+                            }
+                            break;
+                        case "c":
+                        case "countertype":
+                            vm.GraphSettings.CounterType = item.Value == "32" ? CounterType.Counter32 : CounterType.Counter64;
+                            break;
+                        case "pi":
+                        case "pollinterval":
+                            if (int.TryParse(item.Value, out int interval))
+                            {
+                                vm.GraphSettings.PollInterval = interval;
+                            }
+                            break;
+                        case "ts":
+                        case "timespan":
+                            if (int.TryParse(item.Value, out int timespan))
+                            {
+                                vm.GraphSettings.DefaultTimeSpan = timespan;
+                            }
+                            break;
+                        case "g":
+                        case "graphunits":
+                            vm.GraphSettings.CounterUnit = item.Value == "bytes" ? CounterUnit.Bytes : CounterUnit.Bits;
+                            break;
+                        case "pf":
+                        case "prefix":
+                            if (Enum.TryParse(item.Value, out CounterPrefix prefix))
+                            {
+                                vm.GraphSettings.CounterPrefix = prefix;
+                            }
+                            break;
+                    }
+                }
+                vm.StartCommand.Execute(null);
+            }
         }
 
         public void SetLightDark(DarkModeEnabledMessage message)
